@@ -59,7 +59,7 @@ src/
 ## 1. Clone Repository
 
 ```bash
-git clone <your-repository-link>
+git clone https://github.com/namanjn0921/attendance-app
 ```
 
 ## 2. Navigate Into Project

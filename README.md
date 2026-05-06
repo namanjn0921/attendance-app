@@ -1,50 +1,348 @@
-# Welcome to your Expo app 👋
+# Geo-Fenced Attendance App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile application built using Expo that allows users to mark attendance only when they are physically present inside a predefined geo-fenced area.
 
-## Get started
+This project was developed as part of the Mobile Engineer Intern Assessment.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+# Features
 
-2. Start the app
+## Core Features
 
-   ```bash
-   npx expo start
-   ```
+* User onboarding with Name and Employee ID
+* Real-time GPS location tracking
+* Geo-fencing based attendance system
+* Distance calculation using Haversine Formula
+* GPS accuracy validation
+* Attendance marking with timestamp and coordinates
+* Attendance history screen
+* Local storage using AsyncStorage
+* Prevent duplicate attendance for the same employee on the same day
+* Clear attendance history
+* User switching / reset functionality
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+# Tech Stack
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+* React Native
+* Expo
+* JavaScript
+* AsyncStorage
+* Expo Location API
+* React Navigation
 
-## Get a fresh project
+---
 
-When you're ready, run:
+# Project Structure
 
 ```bash
-npm run reset-project
+src/
+ ├── components/
+ │    └── CustomButton.js
+ │
+ ├── screens/
+ │    ├── HomeScreen.js
+ │    ├── HistoryScreen.js
+ │    └── OnboardingScreen.js
+ │
+ ├── utils/
+ │    ├── distance.js
+ │    └── theme.js
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+# Setup Instructions
 
-To learn more about developing your project with Expo, look at the following resources:
+## 1. Clone Repository
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+git clone <your-repository-link>
+```
 
-## Join the community
+## 2. Navigate Into Project
 
-Join our community of developers creating universal apps.
+```bash
+cd attendance-app
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 3. Install Dependencies
+
+```bash
+npm install
+```
+
+## 4. Install Required Packages
+
+```bash
+npm install @react-native-async-storage/async-storage
+```
+
+```bash
+npx expo install expo-location
+```
+
+```bash
+npm install @react-navigation/native
+```
+
+```bash
+npx expo install react-native-screens react-native-safe-area-context
+```
+
+```bash
+npm install @react-navigation/native-stack
+```
+
+## 5. Start Application
+
+```bash
+npm start
+```
+
+---
+
+# Application Workflow
+
+## 1. Onboarding
+
+When the application opens for the first time:
+
+* User enters Name
+* User enters Employee ID
+* Data is stored locally using AsyncStorage
+
+The application skips onboarding on future launches unless the user changes profile.
+
+---
+
+## 2. Home Screen
+
+The Home Screen displays:
+
+* Current Latitude
+* Current Longitude
+* GPS Accuracy
+* Accuracy Status
+* Distance from Center Location
+* Inside / Outside Status
+
+The user can:
+
+* Refresh Location
+* Mark Attendance
+* View Attendance History
+* Change User
+
+---
+
+## 3. Attendance Marking Logic
+
+Attendance is allowed only if:
+
+* User is inside the allowed geo-fenced radius
+* GPS accuracy is acceptable
+* User has not already marked attendance for the same day
+
+If any condition fails, attendance is rejected.
+
+---
+
+# Geo-Fencing Logic
+
+A fixed center coordinate is defined inside the application.
+
+```js
+const CENTER = {
+  latitude: 28.733653831115042,
+  longitude: 77.13191403823008
+};
+```
+
+The distance between the user's current location and the center location is calculated using the Haversine Formula.
+
+Attendance is allowed only when:
+
+```js
+Distance <= 100 meters
+```
+
+---
+
+# Distance Calculation Approach
+
+The Haversine Formula was used to calculate the real-world distance between two geographic coordinates.
+
+This formula accounts for the curvature of the Earth and provides accurate GPS distance calculations.
+
+Implementation file:
+
+```bash
+src/utils/distance.js
+```
+
+---
+
+# GPS Accuracy Handling
+
+Real-world GPS values fluctuate frequently.
+
+To handle inaccurate GPS data, the following logic was implemented:
+
+| Accuracy Range | Status   | Behavior           |
+| -------------- | -------- | ------------------ |
+| <= 50m         | Good     | Attendance Allowed |
+| 50m - 70m      | Moderate | Warning Displayed  |
+| > 70m          | Poor     | Attendance Blocked |
+
+This approach avoids sudden allow/reject behavior caused by minor GPS fluctuations.
+
+---
+
+# Duplicate Attendance Prevention
+
+The application prevents multiple attendance submissions by the same employee on the same day.
+
+Logic:
+
+* Attendance history is loaded from AsyncStorage
+* Employee ID and current date are compared
+* If attendance already exists for the same employee on the same date, attendance is blocked
+
+This simulates a real-world attendance system.
+
+---
+
+# Attendance History
+
+The history screen displays:
+
+* Employee Name
+* Employee ID
+* Timestamp
+* Latitude
+* Longitude
+
+Additional Features:
+
+* Clear attendance history
+* Formatted timestamps
+* Card-based UI layout
+
+---
+
+# UI Design
+
+The UI was designed using a clean card-based layout.
+
+Theme colors were inspired by the company branding:
+
+* Green
+* Black
+* Yellow accents
+
+Design Goals:
+
+* Clean
+* Minimal
+* Professional
+* Easy to read
+
+Focus was placed on usability and clarity instead of excessive UI polish.
+
+---
+
+# Assumptions Made
+
+* User grants location permission
+* GPS data may fluctuate indoors
+* One device may be used by multiple employees
+* Internet connection is not required
+* Attendance data is stored locally
+
+---
+
+# Known Limitations
+
+* No backend/database integration
+* No cloud synchronization
+* No anti-spoofing detection
+* No background location tracking
+* Attendance data can be cleared locally
+
+---
+
+# Future Improvements
+
+If more time were available, the following improvements would be added:
+
+* Backend integration
+* Secure authentication system
+* Cloud attendance synchronization
+* Live map integration
+* Face verification
+* GPS spoof detection
+* Admin dashboard
+* Background geo-fencing
+* Push notifications
+
+---
+
+# Key Technical Decisions
+
+## Why Expo?
+
+Expo was used to simplify development and speed up testing.
+
+## Why AsyncStorage?
+
+The assignment allowed local storage, so AsyncStorage was chosen for simplicity and offline support.
+
+## Why Haversine Formula?
+
+It provides accurate real-world geographic distance calculations.
+
+## Why Accuracy Buffer?
+
+GPS values fluctuate frequently in real environments.
+
+A buffer range improves user experience while still maintaining reliability.
+
+---
+
+# Screens Included
+
+* Onboarding Screen
+* Home Screen
+* Attendance History Screen
+
+---
+
+# Demo Scenarios Covered
+
+The application demonstrates:
+
+* Successful attendance marking
+* Rejected attendance outside radius
+* GPS accuracy validation
+* Duplicate attendance prevention
+* Attendance history storage
+* User switching
+
+---
+
+# APK + Demo Video
+
+Submission includes:
+
+* GitHub Repository
+* APK File
+* Walkthrough Video
+
+---
+
+# Author
+
+Developed by Naman Jain
